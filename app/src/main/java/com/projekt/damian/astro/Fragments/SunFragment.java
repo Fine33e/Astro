@@ -93,16 +93,16 @@ public class SunFragment extends Fragment {
                 public void run() {
                     someHandler.postDelayed(this, 60000 * refreshTime);
                     setTime();
-                    if(!isPaused){
-                        Toast.makeText(getActivity(), "Update Data ", Toast.LENGTH_SHORT).show();
-                    }
+
                     astroCalc.setDateTime(AstroDT.astroDateTime);
                     setData();
 
                 }
             }, 10);
 
-
+        if(!isPaused){
+            Toast.makeText(getActivity(), "Update Data ", Toast.LENGTH_SHORT).show();
+        }
         return view;
     }
     @Override

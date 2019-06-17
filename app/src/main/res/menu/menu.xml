@@ -1,0 +1,13 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.projekt.damian.astro.MainActivity">
+    <item
+        android:id="@+id/item1"
+        android:title="localization"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/item2"
+        android:title="refresh time"
+        app:showAsAction="never" />
+</menu>

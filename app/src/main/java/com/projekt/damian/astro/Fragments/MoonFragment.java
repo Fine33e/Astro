@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.projekt.damian.astro.AstroCalc;
 import com.projekt.damian.astro.AstroDT;
@@ -26,6 +27,9 @@ public class MoonFragment extends Fragment {
     private TextView latitude, longitude, moonrise,moonset,age,ilumination, nextFullMoon, nextNewMoon;
     private AstroCalc astroCalc;
     private int refreshTime;
+    volatile boolean activityStopped = false;
+    Handler someHandler;
+    private boolean isPaused =false;
 
     @Nullable
     @Override
@@ -70,6 +74,11 @@ public class MoonFragment extends Fragment {
                     longitude.setText(Localization.getLongitude().toString());
                     astroCalc.setLocation(Localization.location);
                     setTime();
+
+                    if(isPaused){
+                        someHandler.removeCallbacks(this);
+                    }
+                    Toast.makeText(getActivity(), "Update Data ", Toast.LENGTH_SHORT).show();
                     astroCalc.setDateTime(AstroDT.astroDateTime);
                     setData();
                 }
@@ -79,21 +88,27 @@ public class MoonFragment extends Fragment {
             }
         }, 10);
 
+            someHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    someHandler.postDelayed(this, 60000 * refreshTime);
+                    setTime();
+                    if(!isPaused){
+                        Toast.makeText(getActivity(), "Update Data ", Toast.LENGTH_SHORT).show();
+                    }
+                    astroCalc.setDateTime(AstroDT.astroDateTime);
 
-        someHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                someHandler.postDelayed(this, 60000 * refreshTime);
-                setTime();
-                astroCalc.setDateTime(AstroDT.astroDateTime);
+                    setData();
 
-                setData();
-
-            }
-        }, 10);
-
+                }
+            }, 10);
 
         return view;
+    }
+    @Override
+    public void onPause() {
+        isPaused=true;
+        super.onPause();
     }
 
     public void setTime(){
@@ -120,4 +135,5 @@ public class MoonFragment extends Fragment {
         ilumination.setText(Double.toString(astroCalc.getIlumination()));
         age.setText(Double.toString(astroCalc.getAge()));
     }
+
 }

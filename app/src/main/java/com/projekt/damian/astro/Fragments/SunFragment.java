@@ -1,6 +1,5 @@
 package com.projekt.damian.astro.Fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -9,31 +8,28 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.TextView;
-
+import android.widget.Toast;
 
 import com.projekt.damian.astro.AstroCalc;
 import com.projekt.damian.astro.AstroDT;
 import com.projekt.damian.astro.Localization;
 import com.projekt.damian.astro.R;
 
-import org.w3c.dom.Text;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import static android.os.Looper.getMainLooper;
 
-public class SunFragment extends Fragment  {
+public class SunFragment extends Fragment {
 
     private TextView time2;
     private TextView latitude, longitude, sunrise,sunset,azimuthRise,azimuthSet, twilightEvening, twilightMorning;
     private AstroCalc astroCalc;
     private int refreshTime;
+
+    private boolean isPaused = false;
 
     @Nullable
     @Override
@@ -77,7 +73,12 @@ public class SunFragment extends Fragment  {
                     latitude.setText(Localization.getLatitude().toString());
                     longitude.setText(Localization.getLongitude().toString());
                     astroCalc.setLocation(Localization.location);
-                    setTtime();
+                    setTime();
+
+                    if(isPaused){
+                        someHandler.removeCallbacks(this);
+                    }
+
                     astroCalc.setDateTime(AstroDT.astroDateTime);
                     setData();
                 }
@@ -87,23 +88,29 @@ public class SunFragment extends Fragment  {
         }, 10);
 
 
-        someHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                someHandler.postDelayed(this, 60000 * refreshTime);
-                setTtime();
-                astroCalc.setDateTime(AstroDT.astroDateTime);
+            someHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    someHandler.postDelayed(this, 60000 * refreshTime);
+                    setTime();
+                    if(!isPaused){
+                        Toast.makeText(getActivity(), "Update Data ", Toast.LENGTH_SHORT).show();
+                    }
+                    astroCalc.setDateTime(AstroDT.astroDateTime);
+                    setData();
 
-                setData();
-
-            }
-        }, 10);
+                }
+            }, 10);
 
 
         return view;
     }
-
-    public void setTtime(){
+    @Override
+    public void onPause() {
+        isPaused = true;
+        super.onPause();
+    }
+    public void setTime(){
         AstroDT.setYear(Integer.parseInt(new SimpleDateFormat("yyyy", Locale.US).format(new Date())));
         AstroDT.setMonth(Integer.parseInt(new SimpleDateFormat("MM", Locale.US).format(new Date())));
         AstroDT.setDay(Integer.parseInt(new SimpleDateFormat("dd", Locale.US).format(new Date())));
@@ -127,6 +134,5 @@ public class SunFragment extends Fragment  {
         twilightEvening.setText(astroCalc.getTwilightEvening().toString());
         twilightMorning.setText(astroCalc.getTwilightMorning().toString());
     }
-
 
 }
